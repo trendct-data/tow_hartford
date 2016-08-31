@@ -1,0 +1,28 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1472568671107.000,
+    "dirty" : false,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "B8231B13",
+    "lastKnownWriteTime" : 4611686018427387910,
+    "last_content_update" : 1472568671107,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "cacheKey" : "aevpu0vkh8",
+        "caption" : "tows",
+        "contentUrl" : "grid_resource/gridviewer.html?env=&obj=tows&cache_key=aevpu0vkh8",
+        "displayedObservations" : "20492",
+        "environment" : "",
+        "object" : "tows",
+        "totalObservations" : "20492",
+        "variables" : "2"
+    },
+    "relative_order" : 2,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_dataframe"
+}

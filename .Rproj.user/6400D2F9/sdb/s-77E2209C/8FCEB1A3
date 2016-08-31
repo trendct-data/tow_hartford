@@ -1,0 +1,28 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1472663567403.000,
+    "dirty" : false,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "8FCEB1A3",
+    "lastKnownWriteTime" : 4386240000,
+    "last_content_update" : 1472663567403,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "cacheKey" : "21oq1q490h",
+        "caption" : "tows_leaf",
+        "contentUrl" : "grid_resource/gridviewer.html?env=&obj=tows_leaf&cache_key=21oq1q490h",
+        "displayedObservations" : 20492,
+        "environment" : "",
+        "object" : "tows_leaf",
+        "totalObservations" : 20492,
+        "variables" : 3
+    },
+    "relative_order" : 17,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_dataframe"
+}
