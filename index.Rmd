@@ -1,13 +1,13 @@
 ---
-title: "towing analysis"
+title: "Analyzing Hartford towing data"
 author: "Andrew Ba Tran"
 date: "August 31, 2016"
 output: html_document
 ---
 
-# The towed in Hartford
+Looking at 1.5 years of towing data compiled by [Matt Zagaja](http://trendct.org/2015/04/23/towed-in-hartford-heres-how-open-data-can-send-you-a-text-message/
+) from Hartford's Open Data portal.
 
-Looking 
 
 ```{r setup, warning=FALSE, message=FALSE}
 library(dplyr)
@@ -127,10 +127,7 @@ leaflet(tows) %>% addTiles('http://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y
 ## Where are vehicles towed to?
 
 ```{r towed_to, message=F, warning=F, fig.width=9, fig.height=5}
-
-
-
-hartbox <- make_bbox(lon = tows$tow_lon, lat =tows$tow_lat, f = .2)
+#hartbox <- make_bbox(lon = tows$tow_lon, lat =tows$tow_lat, f = .2)
 hart_map <- get_map(location = "Hartford", zoom=12, maptype = "roadmap", source = "google")
 
 townborders <- readOGR(dsn="maps", layer="ctgeo")
@@ -525,6 +522,8 @@ kable(avg_miles)
 ## Heatmap
 
 ```{r heatmap1, fig.height=6, fig.width=9, warning=F, message=F}
+hartbox <- make_bbox(lon = tows$tow_lon, lat =tows$tow_lat, f = .2)
+hart_map <- get_map(location = hartbox, maptype = "roadmap", source = "google")
 
 joined_tracts2 <- subset(joined_tracts, town_name=="Hartford")
 
@@ -544,27 +543,17 @@ print(pm_ct)
 
 ## Heatmap per towing company
 
-```{r heatmap2, fig.height=12, fig.width=9, warning=F, message=F}
+```{r heatmap2, fig.height=20, fig.width=9, warning=F, message=F}
 
 pm_ct <- ggmap(hart_map)
 pm_ct <- pm_ct + stat_density2d(data = tows_no_na, show.legend=F, aes(x=tow_lon, y=tow_lat, fill=..level.., alpha=..level..),  geom="polygon",size=.5,bins=10)
-pm_ct <- pm_ct + geom_polygon(data = joined_tracts2, aes(x=long, y=lat, group=group), fill=NA, color = "black", size=0.2) 
-pm_ct <- pm_ct + geom_polygon(data = town_borders, aes(x=long, y=lat, group=group), fill=NA, color = "black", size=0.4)
-#pm_ct <- pm_ct + geom_polygon(data = ct_only, aes(x=long, y=lat, group=group), fill="seagreen2", color = "gray93", size=0.2)
-#pm_ct <- pm_ct + gg_circle(r=9, xc=-73, yc=42, color="white", fill=NA, alpha=0.2, size=40) 
 pm_ct <- pm_ct + scale_fill_gradient(low="deepskyblue2", high="firebrick1", name="Distribution")
-#pm_ct <- pm_ct + scale_fill_discrete()
-#extra_lat <- c(46.358685, 35.872715)
-#extra_lon <- c(-64.209938, -79.735653)
-#pm_ct <- pm_ct + theme(legend.position="top",  legend.key = element_blank())
 pm_ct <- pm_ct + coord_fixed()
 pm_ct <- pm_ct + theme_nothing(legend=TRUE) 
 pm_ct <- pm_ct + labs(x=NULL, y=NULL, title="Where tow yards target")
-pm_ct <- pm_ct + facet_wrap(~Tow_Firm)
-#pm_ct <- pm_ct + theme(text = element_text(size=15), panel.background = element_rect(fill = 'gray93', color=NA))
+pm_ct <- pm_ct + facet_wrap(~Tow_Firm, ncol=3)
 pm_ct <- pm_ct + theme(plot.title=element_text(face="bold", hjust=.4))
 pm_ct <- pm_ct + theme(plot.subtitle=element_text(face="italic", size=9, margin=margin(l=20)))
 pm_ct <- pm_ct + theme(plot.caption=element_text(size=12, margin=margin(t=12), color="#7a7d7e", hjust=0))
-#pm_ct <- pm_ct + theme(legend.key.size = unit(1, "cm"))
 
 print(pm_ct)
