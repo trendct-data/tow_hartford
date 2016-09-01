@@ -53,40 +53,12 @@ tows_sub <- subset(tows_sub, Tow_Firm!="CROSS COUNTRY AUTO")
 geo <- geocode(location = tows_sub$Tow_Firm_Address, output="latlon", source="google")
 tows_sub <- cbind(tows_sub, geo)
 
-#### An array of 21 colors just for fun
-color <- data.frame("#29e908", 
-                     "#0a5cee", 
-                     "#8d480c", 
-                     "#8edeb7", 
-                     "#c9e746", 
-                     "#96bab2", 
-                     "#0fe5a2", 
-                     "#6a5c5b", 
-                     "#19cdfd", 
-                     "#279fe6", 
-                     "#7ac150", 
-                     "#660e6e", 
-                     "#095a21", 
-                     "#dfe142", 
-                     "#786839", 
-                     "#f5657c", 
-                     "#4decd2", 
-                     "#4eb06f", 
-                     "#fdc200", 
-                     "#08d479", 
-                     "#b2cca8")
-color <- data.frame(t(color))
-rownames(color) <- NULL
-
-#### Adding the colors to the tow firm name dataframe
-tows_sub <- cbind(tows_sub, color)
-
 #### Delete Tow_Firm and Tow_Firm_Address columns in original dataframe
 tows <- tows[,-3]
 tows <- tows[,-3]
 
 #### Prep dataframe for joining
-tows_sub <- tows_sub[c("Tow_Firm", "Tow_Firm_Address", "Tow_Firm_Phone", "lon", "lat", "t.color.")]
+tows_sub <- tows_sub[c("Tow_Firm", "Tow_Firm_Address", "Tow_Firm_Phone", "lon", "lat")]
 
 #### Join the dataframes
 tows <- left_join(tows, tows_sub)
@@ -142,17 +114,9 @@ tm_ct <- ggmap(hart_map) +
   #geom_polygon(data = total_map, aes(x=long, y=lat, group=group, fill=total), color = "black", size=0.2) +
   geom_polygon(data = town_borders, aes(x=long, y=lat, group=group, fill=total), color = "black", fill=NA, size=0.5) +
   coord_map() +
-  scale_fill_distiller(type="seq", trans="reverse", palette = "Reds", breaks=pretty_breaks(n=10)) +
   theme_nothing(legend=TRUE) +
   labs(title="Where vehicles are towed to", fill="")
 print(tm_ct)
-
-# 
-# leaflet(tows) %>% addTiles('http://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png', attribution='Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>') %>% 
-#   setView(-72.690940, 41.751426, zoom = 12) %>% 
-#   addCircles(~lon, ~lat, popup=tows$Make, weight = 3, radius=40, 
-#              color="#ffa500", stroke = TRUE, fillOpacity = 0.8) %>% 
-#   addLegend("bottomright", colors= "#ffa500", labels="Towed'", title="In Hartford")
 
 
 ```
@@ -190,6 +154,28 @@ model <- tows %>%
 kable(head(model,10))
 ```
 
+## Year and make?
+
+```{r make_year}
+make_year <- tows %>%
+  group_by(Vehicle_Year, Make) %>%
+  summarise(count=n()) %>%
+  arrange(-count)
+
+kable(head(make_year,10))
+```
+
+
+## Year and model?
+
+```{r model_year}
+model_year <- tows %>%
+  group_by(Vehicle_Year, Model) %>%
+  summarise(count=n()) %>%
+  arrange(-count)
+
+kable(head(model_year,20))
+```
 ## Any particular color? 
 
 ```{r color}
@@ -267,12 +253,19 @@ kable(head(tow_address, 20))
 
 ## Where do these tow yards target?
 
-```{r target, fig.height=9, fig.width=5}
-leaflet(tows) %>% addTiles('http://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png', attribution='Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>') %>% 
-  setView(-72.690940, 41.751426, zoom = 12) %>% 
-  addCircles(~tow_lon, ~tow_lat, popup=tows$Tow_Firm, weight = 3, radius=40, 
-             color=tows$t.color., stroke = TRUE, fillOpacity = 0.8) %>% 
-  addLegend("bottomright", colors= "#ffa500", labels="Towed'", title="In Hartford")
+```{r target, fig.height=20, fig.width=9, warning=F, message=F}
+tows$tow_lon <- as.numeric(tows$tow_lon)
+tows$tow_lat <- as.numeric(tows$tow_lat)
+
+
+tm_ct <- ggmap(hart_map) +
+  geom_point(data=tows, aes(x=tow_lon, y=tow_lat, color="tomato"), size=1, alpha=0.5) +
+  geom_polygon(data = town_borders, aes(x=long, y=lat, group=group, fill=total), color = "black", fill=NA, size=0.5) +
+facet_wrap(~Tow_Firm, ncol=3) +
+  coord_map() +
+  theme_nothing(legend=T) 
+
+print(tm_ct)
 
 ```
 
