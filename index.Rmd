@@ -207,9 +207,12 @@ ggplot(tows, aes(x=hour)) + geom_histogram(binwidth=1)
 
 ```{r bad_luck}
 plates <- tows %>%
-  group_by(Vehicle_Plate) %>%
+  group_by(Vehicle_Year, Model, Vehicle_Plate) %>%
   summarise(count=n()) %>%
-  arrange(-count)
+  arrange(-count) %>%
+  filter(Vehicle_Plate!="") %>%
+  filter(!is.na(Vehicle_Plate)) %>%
+  filter(Vehicle_Plate!="NONE")
 
 kable(head(plates,10))
 ```
