@@ -10,7 +10,7 @@ This is the analysis behind the TrendCT.org story: [Where are the most vehicles 
 Looking at 1.5 years of towing data compiled by [Matt Zagaja](http://trendct.org/2015/04/23/towed-in-hartford-heres-how-open-data-can-send-you-a-text-message/
 ) from Hartford's Open Data portal.
 
-For other analysis, check out our Trend CT [data projects repo](github.com/trendct-data).
+For other analyses, check out our Trend CT [data projects repo](http://github.com/trendct-data).
 
 
 ```{r setup, warning=FALSE, message=FALSE}

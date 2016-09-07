@@ -7,7 +7,7 @@ This repository contains source data and analysis code for the Trend CT story:
 
 # Walkthroughs
 
-* Analyzing Hartford towing data- [[RMarkdown](https://github.com/trendct-data/blob/master/tow_hartford/index.Rmd)] [[HTML](http://trendct-data.github.io/tow_hartford/)]
+* Analyzing Hartford towing data- [[RMarkdown](https://github.com/trendct-data/tow_hartford/blob/master/index.Rmd)] [[HTML](http://trendct-data.github.io/tow_hartford/)]
 
 ### The Data
 
