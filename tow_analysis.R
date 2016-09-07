@@ -1,3 +1,6 @@
+# The initial analysis script
+# Which was then repurposed for the index.rmd/index.html report
+
 library(dplyr)
 library(lubridate)
 library(leaflet)
@@ -563,3 +566,21 @@ for (i in 1:nrow(tows_leaf)) {
 }
 the_js <- paste0(the_js, "];")
 write(the_js, "the_js.js")
+
+# Creates a circle leaflet, the radius corresponding with the number of tows at that location
+
+address2 <- tows %>%
+  group_by(Tow_From_Address, tow_lat, tow_lon) %>%
+  summarise(count=n()) %>%
+  arrange(-count)
+
+address2$png <- gsub(" ", "", address2$Tow_From_Address)
+address2$png <- paste0("<img src='http://projects.ctmirror.org/content/trend/2016/08/towed/hours/", address2$png, ".png' width='250px'></img>")
+address2$pop <- ifelse(address2$count < 5, paste0(address2$Tow_From_Address, "<br /><strong>Tows: </strong>", address2$count), paste0("<strong>Tows: </strong>", address2$count, "<br />", address2$png))
+
+leaflet(address2) %>% addTiles('http://a.tiles.mapbox.com/v3/borzechowski.gcj2gonc/{z}/{x}/{y}.png', attribution='<a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>') %>% 
+  setView(-72.690940, 41.751426, zoom = 13) %>% 
+  addCircles(~tow_lon, ~tow_lat, popup=address2$pop, weight = 3, radius=address2$count*1.5, 
+             color="#ffa500", stroke = TRUE, fillOpacity = 0.2) %>% 
+  addLegend("bottomright", colors= "#ffa500", labels="Towed'", title="In Hartford")
+

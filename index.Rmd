@@ -5,8 +5,12 @@ date: "August 31, 2016"
 output: html_document
 ---
 
+This is the analysis behind the TrendCT.org story: [Where are the most vehicles towed in Hartford?](http://trendct.org/2016/09/07/where-to-avoid-tow-trucks-in-hartford/)
+
 Looking at 1.5 years of towing data compiled by [Matt Zagaja](http://trendct.org/2015/04/23/towed-in-hartford-heres-how-open-data-can-send-you-a-text-message/
 ) from Hartford's Open Data portal.
+
+For other analysis, check out our Trend CT [data projects repo](github.com/trendct-data).
 
 
 ```{r setup, warning=FALSE, message=FALSE}
@@ -30,6 +34,7 @@ library("censusapi")
 ```
 
 ```{r loading_data}
+# Bring in the data
 tows <- read.csv("data/tows.csv", stringsAsFactors=F)
 ```
 
@@ -87,12 +92,26 @@ There are `r nrow(tows_sub)` towing companies in the city.
 ## Where are the vehicles towed from?
 
 ```{r towed_at, message=F, warning=F, fig.width=9, fig.height=5}
+# Creates a circle leaflet, the radius corresponding with the number of tows at that location
 
-leaflet(tows) %>% addTiles('http://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png', attribution='Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>') %>% 
-  setView(-72.690940, 41.751426, zoom = 12) %>% 
-  addCircles(~tow_lon, ~tow_lat, popup=tows$Make, weight = 3, radius=40, 
-             color="#ffa500", stroke = TRUE, fillOpacity = 0.8) %>% 
+address2 <- tows %>%
+  group_by(Tow_From_Address, tow_lat, tow_lon) %>%
+  summarise(count=n()) %>%
+  arrange(-count)
+
+# Creating a column plugging in histograms of tows by hours by address (in the hours folder)
+# The histograms were created with the histograms.R script and uploaded to our server
+
+address2$png <- gsub(" ", "", address2$Tow_From_Address)
+address2$png <- paste0("<img src='http://projects.ctmirror.org/content/trend/2016/08/towed/hours/", address2$png, ".png' width='250px'></img>")
+address2$pop <- ifelse(address2$count < 5, paste0(address2$Tow_From_Address, "<br /><strong>Tows: </strong>", address2$count), paste0("<strong>Tows: </strong>", address2$count, "<br />", address2$png))
+
+leaflet(address2) %>% addTiles('http://a.tiles.mapbox.com/v3/borzechowski.gcj2gonc/{z}/{x}/{y}.png', attribution='<a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>') %>% 
+  setView(-72.690940, 41.751426, zoom = 13) %>% 
+  addCircles(~tow_lon, ~tow_lat, popup=address2$pop, weight = 3, radius=address2$count*1.5, 
+             color="#ffa500", stroke = TRUE, fillOpacity = 0.2) %>% 
   addLegend("bottomright", colors= "#ffa500", labels="Towed'", title="In Hartford")
+
 
 ```
 
@@ -553,3 +572,22 @@ pm_ct <- pm_ct + theme(plot.subtitle=element_text(face="italic", size=9, margin=
 pm_ct <- pm_ct + theme(plot.caption=element_text(size=12, margin=margin(t=12), color="#7a7d7e", hjust=0))
 
 print(pm_ct)
+```
+
+## Heatmap per hour of the day
+
+```{r heatmap3, fig.height=20, fig.width=9, warning=F, message=F}
+
+pm_ct <- ggmap(hart_map)
+pm_ct <- pm_ct + stat_density2d(data = tows_no_na, show.legend=F, aes(x=tow_lon, y=tow_lat, fill=..level.., alpha=..level..),  geom="polygon",size=.5,bins=10)
+pm_ct <- pm_ct + scale_fill_gradient(low="deepskyblue2", high="firebrick1", name="Distribution")
+pm_ct <- pm_ct + coord_fixed()
+pm_ct <- pm_ct + theme_nothing(legend=TRUE) 
+pm_ct <- pm_ct + labs(x=NULL, y=NULL, title="Where tow yards target")
+pm_ct <- pm_ct + facet_wrap(~hour, ncol=3)
+pm_ct <- pm_ct + theme(plot.title=element_text(face="bold", hjust=.4))
+pm_ct <- pm_ct + theme(plot.subtitle=element_text(face="italic", size=9, margin=margin(l=20)))
+pm_ct <- pm_ct + theme(plot.caption=element_text(size=12, margin=margin(t=12), color="#7a7d7e", hjust=0))
+
+print(pm_ct)
+```
